@@ -50,6 +50,19 @@ export interface Certificado {
   avaliado_em: string | null
 }
 
+export interface Notificacao {
+  id: string
+  tipo: string
+  titulo: string
+  corpo: string
+  entidade_tipo: string | null
+  entidade_id: string | null
+  lida: boolean
+  lida_em: string | null
+  criada_em: string
+  metadata: Record<string, unknown>
+}
+
 export interface AuthResponse {
   user: { id: string; email: string }
   access_token: string
@@ -85,4 +98,13 @@ export const api = {
 
   listarCertificados: (paginaId: string) =>
     request<{ certificados: Certificado[] }>(`/paginas/${paginaId}/certificados`),
+
+  listarNotificacoes: (apenasNaoLidas = false) =>
+    request<{ notificacoes: Notificacao[] }>(`/notificacoes?limit=30${apenasNaoLidas ? '&status=nao_lidas' : ''}`),
+
+  contarNaoLidas: () => request<{ total: number }>('/notificacoes/contagem-nao-lidas'),
+
+  marcarNotificacaoComoLida: (id: string) => request<void>(`/notificacoes/${id}/ler`, { method: 'PATCH' }),
+
+  marcarTodasNotificacoesComoLidas: () => request<void>('/notificacoes/marcar-todas-lidas', { method: 'PATCH' }),
 }
