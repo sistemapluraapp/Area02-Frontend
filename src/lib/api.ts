@@ -1,0 +1,88 @@
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? ''
+
+export class ApiError extends Error {}
+
+async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const headers = new Headers(options.headers)
+  headers.set('Content-Type', 'application/json')
+
+  const token = typeof window !== 'undefined' ? localStorage.getItem('plura_token') : null
+  if (token) headers.set('Authorization', `Bearer ${token}`)
+
+  const res = await fetch(`${BASE_URL}${path}`, { ...options, headers })
+  if (res.status === 204) return undefined as T
+
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new ApiError(data?.error ?? 'Erro inesperado ao falar com o servidor')
+  return data as T
+}
+
+export interface Pagina {
+  id: string
+  tipo: string
+  nome: string
+  descricao: string | null
+  created_at: string
+}
+
+export interface Vinculo {
+  id: string
+  usuario_id: string
+  papel: 'administrador' | 'colaborador'
+  created_at: string
+}
+
+export interface Avaliacao {
+  id: string
+  usuario_id: string
+  nota: number
+  comentario: string | null
+  resposta: string | null
+  respondido_em: string | null
+  sinalizada: boolean
+  created_at: string
+}
+
+export interface Certificado {
+  id: string
+  status: 'pendente' | 'aprovado' | 'reprovado'
+  solicitado_em: string
+  avaliado_em: string | null
+}
+
+export interface AuthResponse {
+  user: { id: string; email: string }
+  access_token: string
+  refresh_token: string
+}
+
+export const api = {
+  login: (body: { email: string; password: string }) =>
+    request<AuthResponse>('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
+
+  criarPagina: (body: { nome: string; descricao?: string }) =>
+    request<Pagina>('/paginas', { method: 'POST', body: JSON.stringify(body) }),
+
+  minhasPaginas: () => request<{ paginas: { papel: string; paginas: Pagina }[] }>('/minhas-paginas'),
+
+  obterPagina: (id: string) =>
+    request<Pagina & { vinculos: Vinculo[]; avaliacoes: Avaliacao[]; certificados: Certificado[] }>(`/paginas/${id}`),
+
+  atualizarPagina: (id: string, body: { nome?: string; descricao?: string }) =>
+    request<Pagina>(`/paginas/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+
+  convidarColaborador: (paginaId: string, cpf: string) =>
+    request<Vinculo>(`/paginas/${paginaId}/colaboradores`, { method: 'POST', body: JSON.stringify({ cpf }) }),
+
+  removerColaborador: (paginaId: string, vinculoId: string) =>
+    request<void>(`/paginas/${paginaId}/colaboradores/${vinculoId}`, { method: 'DELETE' }),
+
+  responderAvaliacao: (avaliacaoId: string, resposta: string) =>
+    request<Avaliacao>(`/avaliacoes/${avaliacaoId}/resposta`, { method: 'PATCH', body: JSON.stringify({ resposta }) }),
+
+  solicitarCertificado: (paginaId: string) =>
+    request<Certificado>(`/paginas/${paginaId}/certificados`, { method: 'POST' }),
+
+  listarCertificados: (paginaId: string) =>
+    request<{ certificados: Certificado[] }>(`/paginas/${paginaId}/certificados`),
+}
