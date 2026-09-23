@@ -42,7 +42,7 @@ async function tentarRenovarSessao(): Promise<boolean> {
   }
 }
 
-async function request<T>(path: string, options: RequestInit = {}, isRetry = false): Promise<T> {
+export async function request<T>(path: string, options: RequestInit = {}, isRetry = false): Promise<T> {
   const headers = new Headers(options.headers)
   headers.set('Content-Type', 'application/json')
 
