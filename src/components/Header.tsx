@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import Button from './Button'
 import NotificationBell from './NotificationBell'
+import ModoToggle from './ModoToggle'
 import { UserIcon } from './icons'
 import { limparSessao } from '@/lib/auth'
 import { LOGO_DATA_URI } from '@/lib/logo'
@@ -28,6 +29,7 @@ export default function Header() {
         área b2b
       </span>
       <div style={{ flex: 1 }} />
+      <ModoToggle />
       <NotificationBell />
       <Button variant="ghost" size="sm" onClick={sair}>
         <UserIcon /> Sair
