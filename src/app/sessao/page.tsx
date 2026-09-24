@@ -27,7 +27,7 @@ export default function SessaoPage() {
   }, [])
 
   return (
-    <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem', textAlign: 'center' }}>
+    <main id="conteudo" tabIndex={-1} style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem', textAlign: 'center' }}>
       {erro ? (
         <p>
           Não foi possível continuar a sessão. <a href="/login" style={{ color: 'var(--c-accent-text)', fontWeight: 600 }}>Entrar novamente</a>
