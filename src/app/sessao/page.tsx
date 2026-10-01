@@ -3,12 +3,14 @@
 import { useEffect, useState } from 'react'
 import { salvarSessao } from '@/lib/auth'
 import { destinoSeguro } from '@/lib/destino'
+import { useTituloPagina } from '@/lib/useTituloPagina'
 
 // Passagem automática de sessão vinda da Área 01 (botão "Gerenciar").
 // Os tokens chegam no fragmento da URL (#...), que o navegador não envia ao
 // servidor nem registra em logs; são gravados e o fragmento é apagado do
 // histórico antes de seguir para o destino.
 export default function SessaoPage() {
+  useTituloPagina('Entrando')
   const [erro, setErro] = useState(false)
 
   useEffect(() => {
