@@ -2,7 +2,21 @@ import { obterRefreshToken, salvarSessao, limparSessao } from './auth'
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? ''
 
-export class ApiError extends Error {}
+export class ApiError extends Error {
+  status?: number
+  suspensa?: boolean
+  // Ex.: 'conta_gov', 'sem_paginas_gov', 'sem_conta', 'outra_area', 'sem_permissao'
+  codigo?: string
+  link?: string
+
+  constructor(message: string, options?: { status?: number; suspensa?: boolean; codigo?: string; link?: string }) {
+    super(message)
+    this.status = options?.status
+    this.suspensa = options?.suspensa
+    this.codigo = options?.codigo
+    this.link = options?.link
+  }
+}
 
 function redirecionarParaLogin(): void {
   if (
@@ -60,7 +74,7 @@ export async function request<T>(path: string, options: RequestInit = {}, isRetr
       const renovou = await tentarRenovarSessao()
       if (renovou) return request<T>(path, options, true)
     }
-    throw new ApiError(data?.error ?? 'Erro inesperado ao falar com o servidor')
+    throw new ApiError(data?.error ?? 'Erro inesperado ao falar com o servidor', { status: res.status, codigo: data?.codigo, link: data?.link })
   }
   return data as T
 }
@@ -132,11 +146,7 @@ export const api = {
   atualizarPagina: (id: string, body: { nome?: string; descricao?: string }) =>
     request<Pagina>(`/paginas/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
 
-  convidarColaborador: (paginaId: string, cpf: string) =>
-    request<Vinculo>(`/paginas/${paginaId}/colaboradores`, { method: 'POST', body: JSON.stringify({ cpf }) }),
 
-  removerColaborador: (paginaId: string, vinculoId: string) =>
-    request<void>(`/paginas/${paginaId}/colaboradores/${vinculoId}`, { method: 'DELETE' }),
 
   responderAvaliacao: (avaliacaoId: string, resposta: string) =>
     request<Avaliacao>(`/avaliacoes/${avaliacaoId}/resposta`, { method: 'PATCH', body: JSON.stringify({ resposta }) }),
