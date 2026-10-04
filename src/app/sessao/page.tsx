@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Carregando from '@/components/Carregando'
 import { salvarSessao } from '@/lib/auth'
 import { destinoSeguro } from '@/lib/destino'
 import { useTituloPagina } from '@/lib/useTituloPagina'
@@ -35,7 +36,7 @@ export default function SessaoPage() {
           Não foi possível continuar a sessão. <a href="/login" style={{ color: 'var(--c-accent-text)', fontWeight: 600 }}>Entrar novamente</a>
         </p>
       ) : (
-        <p style={{ fontFamily: 'var(--font-mono)', color: 'var(--c-text-3)' }}>entrando…</p>
+        <Carregando texto="Entrando…" />
       )}
     </main>
   )

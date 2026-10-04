@@ -23,3 +23,16 @@ export function estaLogado(): boolean {
 export function obterRefreshToken(): string | null {
   return typeof window !== 'undefined' ? localStorage.getItem(REFRESH_KEY) : null
 }
+
+export function obterToken(): string | null {
+  return typeof window !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null
+}
+
+export function obterUsuarioSalvo(): { id: string; email?: string } | null {
+  if (typeof window === 'undefined') return null
+  try {
+    return JSON.parse(localStorage.getItem(USER_KEY) ?? 'null')
+  } catch {
+    return null
+  }
+}
