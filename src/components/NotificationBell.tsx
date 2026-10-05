@@ -6,6 +6,7 @@ import Button from './Button'
 import { BellIcon } from './icons'
 import { api, type Notificacao } from '@/lib/api'
 import Carregando from '@/components/Carregando'
+import { destinoNotificacao } from '@/lib/destinoNotificacao'
 
 // rotulo: mostra o texto ao lado do sino (menu principal)
 export default function NotificationBell({ rotulo }: { rotulo?: string } = {}) {
@@ -62,6 +63,14 @@ export default function NotificationBell({ rotulo }: { rotulo?: string } = {}) {
   }
 
   async function marcarComoLida(notificacao: Notificacao) {
+    const destino = destinoNotificacao(notificacao)
+    if (destino) {
+      setAberto(false)
+      if (destino.startsWith('/#')) {
+        if (window.location.pathname === '/') window.location.hash = destino.slice(1)
+        else window.location.href = destino
+      } else window.location.href = destino
+    }
     if (notificacao.lida) return
     setNotificacoes((prev) => prev.map((n) => (n.id === notificacao.id ? { ...n, lida: true } : n)))
     setNaoLidas((n) => Math.max(0, n - 1))
@@ -174,7 +183,7 @@ export default function NotificationBell({ rotulo }: { rotulo?: string } = {}) {
                     borderRadius: '0.65rem',
                     background: n.lida ? 'var(--c-glass-bg-sm)' : 'var(--c-glass-bg-blue)',
                     border: n.lida ? '1px solid transparent' : 'var(--c-border-blue)',
-                    cursor: n.lida ? 'default' : 'pointer',
+                    cursor: n.lida && !destinoNotificacao(n) ? 'default' : 'pointer',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
