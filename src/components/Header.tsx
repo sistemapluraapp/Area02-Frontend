@@ -32,7 +32,7 @@ export default function Header() {
         área b2b
       </span>
       <NavPrincipal
-        inicio={() => urlArea01('/')}
+        inicio={() => urlArea01('/buscar')}
         minhaArea="/"
         agenda={() => urlArea01('/agenda')}
         voltarPara="/"
